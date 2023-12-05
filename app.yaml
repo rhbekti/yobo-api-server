@@ -1,0 +1,11 @@
+runtime: nodejs
+env: flex
+
+manual_scaling:
+  instances: 1
+
+env_variables:
+  MYSQL_HOST: '34.128.114.112'
+  MYSQL_USER: 'root'
+  MYSQL_PASSWORD: '123'
+  MYSQL_DATABASE: 'buku_db'
