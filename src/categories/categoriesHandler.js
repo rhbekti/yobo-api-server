@@ -1,5 +1,3 @@
-const categories = require('./categories');
-
 const getAllCategories = (req, res) => {
   const dummyCategories = [
     {
@@ -14,14 +12,21 @@ const getAllCategories = (req, res) => {
       photoUrl: 'https://uploads-ssl.webflow.com/5dca23595f1e4663d62cab0b/6315afd170d137cfe7731044_bca.png',
       title: 'BCA',
     },
+    {
+      photoUrl: 'https://uploads-ssl.webflow.com/5dca23595f1e4663d62cab0b/6315afd1caf1231954a83147_apple.png',
+      title: 'Apple Pay',
+    },
+    {
+      photoUrl: 'https://uploads-ssl.webflow.com/5dca23595f1e4663d62cab0b/6315afd10bda28621c3e11e3_paypal.png',
+      title: 'Paypal',
+    },
   ];
 
-  if (categories.length <= 0) categories.push(dummyCategories);
   res.status(200);
   res.send({
     status: 'true',
     message: 'Categories fetch successfully',
-    data: categories,
+    data: dummyCategories,
   });
 };
 

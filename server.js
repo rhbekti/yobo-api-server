@@ -21,18 +21,19 @@ const connection = mysql.createConnection({
 
 connection.connect((err) => {
   if (err) {
-    console.error("Error connecting to database: ", err);
+    console.error('Error connecting to database: ', err);
     return;
   }
-  console.log("Connected to MySQL database");
+  console.log('Connected to MySQL database');
 });
 
-app.get("/books", (req, res) => {
-  connection.query("SELECT * FROM books", (err, results) => {
+app.get('/books', (req, res) => {
+  connection.query('SELECT * FROM books', (err, results) => {
     if (err) {
+      res.status(500);
       res.json({
         status: false,
-        message: "Error fetching books",
+        message: 'Error fetching books',
         data: [],
       });
       return;
@@ -47,9 +48,10 @@ app.get("/books", (req, res) => {
       };
     });
 
+    res.status(200);
     res.json({
       status: true,
-      message: "Books fetched successfully",
+      message: 'Books fetched successfully',
       data: formattedResults,
     });
   });
