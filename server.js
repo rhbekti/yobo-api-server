@@ -1,3 +1,4 @@
+/* eslint-disable no-console */
 // server.js
 const express = require('express');
 const bodyParser = require('body-parser');
@@ -7,65 +8,66 @@ const app = express();
 
 app.use(bodyParser.urlencoded({ extended: false }));
 
+// route
+const { getAllCategories } = require('./src/categories/categoriesHandler');
+
 // Buat koneksi ke database
 const connection = mysql.createConnection({
   host: '34.128.114.112',
   user: 'root',
   password: '123',
-  database: 'buku_db'
+  database: 'buku_db',
 });
 
 connection.connect((err) => {
   if (err) {
-    console.error('Error connecting to database: ', err);
+    console.error("Error connecting to database: ", err);
     return;
   }
-  console.log('Connected to MySQL database');
+  console.log("Connected to MySQL database");
 });
 
-
-app.get('/books', (req, res) => {
-    connection.query('SELECT * FROM books', (err, results) => {
-      if (err) {
-        res.json({
-          status: false,
-          message: 'Error fetching books',
-          data: []
-        });
-        return;
-      }
-  
-      const formattedResults = results.map(book => {
-        return {
-          id: book.id,
-          title: book.title,
-          author: book.author,
-          year: book.year
-        };
-      });
-  
+app.get("/books", (req, res) => {
+  connection.query("SELECT * FROM books", (err, results) => {
+    if (err) {
       res.json({
-        status: true,
-        message: 'Books fetched successfully',
-        data: formattedResults
+        status: false,
+        message: "Error fetching books",
+        data: [],
       });
+      return;
+    }
+
+    const formattedResults = results.map((book) => {
+      return {
+        id: book.id,
+        title: book.title,
+        author: book.author,
+        year: book.year,
+      };
+    });
+
+    res.json({
+      status: true,
+      message: "Books fetched successfully",
+      data: formattedResults,
     });
   });
-  
+});
 
-
-app.get('/tabel', (req, res) => {
-    connection.query('SELECT * FROM books', (err, results) => {
-      if (err) {
-        res.send('Error fetching data');
-        return;
-      }
-      let tableHtml = '<table border="1"><tr><th>ID</th><th>ISBN</th><th>Title</th><th>Author</th><th>Year</th><th>Action</th></tr>';
-      results.forEach(book => {
-        tableHtml += `<tr><td>${book.id}</td><td>${book.ISBN}</td><td>${book.title}</td><td>${book.author}</td><td>${book.year}</td><td><a href="/edit-book/${book.id}">Edit</a> | <a href="/delete-book/${book.id}">Delete</a></td></tr>`;
-      });
-      tableHtml += '</table>';
-      res.send(`
+app.get("/tabel", (req, res) => {
+  connection.query("SELECT * FROM books", (err, results) => {
+    if (err) {
+      res.send("Error fetching data");
+      return;
+    }
+    let tableHtml =
+      '<table border="1"><tr><th>ID</th><th>ISBN</th><th>Title</th><th>Author</th><th>Year</th><th>Action</th></tr>';
+    results.forEach((book) => {
+      tableHtml += `<tr><td>${book.id}</td><td>${book.ISBN}</td><td>${book.title}</td><td>${book.author}</td><td>${book.year}</td><td><a href="/edit-book/${book.id}">Edit</a> | <a href="/delete-book/${book.id}">Delete</a></td></tr>`;
+    });
+    tableHtml += "</table>";
+    res.send(`
         <!DOCTYPE html>
         <html>
         <head>
@@ -77,44 +79,46 @@ app.get('/tabel', (req, res) => {
         </body>
         </html>
       `);
-    });
   });
-  
-
+});
 
 // Menghapus buku dari database berdasarkan ID
-app.delete('/delete-book/:id', (req, res) => {
-    const bookId = req.params.id;
-    connection.query('DELETE FROM books WHERE id = ?', [bookId], (err, result) => {
+app.delete("/delete-book/:id", (req, res) => {
+  const bookId = req.params.id;
+  connection.query(
+    "DELETE FROM books WHERE id = ?",
+    [bookId],
+    (err, result) => {
       if (err) {
         res.json({
           status: false,
-          message: 'Error deleting book',
-          data: {}
+          message: "Error deleting book",
+          data: {},
         });
         return;
       }
       res.json({
         status: true,
-        message: 'Book deleted successfully',
-        data: {}
+        message: "Book deleted successfully",
+        data: {},
       });
-    });
-  });
-  
-
-
-  
-// Menampilkan form untuk mengedit buku berdasarkan ID
-app.get('/edit-book/:id', (req, res) => {
-  const bookId = req.params.id;
-  connection.query('SELECT * FROM books WHERE id = ?', [bookId], (err, result) => {
-    if (err || result.length === 0) {
-      res.send('Book not found');
-      return;
     }
-    const book = result[0];
-    res.send(`
+  );
+});
+
+// Menampilkan form untuk mengedit buku berdasarkan ID
+app.get("/edit-book/:id", (req, res) => {
+  const bookId = req.params.id;
+  connection.query(
+    "SELECT * FROM books WHERE id = ?",
+    [bookId],
+    (err, result) => {
+      if (err || result.length === 0) {
+        res.send("Book not found");
+        return;
+      }
+      const book = result[0];
+      res.send(`
       <!DOCTYPE html>
       <html>
       <head>
@@ -136,41 +140,43 @@ app.get('/edit-book/:id', (req, res) => {
       </body>
       </html>
     `);
-  });
+    }
+  );
 });
 
 // Meng-handle pembaruan buku ke database
-app.post('/update-book/:id', (req, res) => {
+app.post("/update-book/:id", (req, res) => {
   const bookId = req.params.id;
   const { ISBN, title, author, year } = req.body;
-  connection.query('UPDATE books SET ISBN = ?, title = ?, author = ?, year = ? WHERE id = ?', [ISBN, title, author, year, bookId], (err, result) => {
-    if (err) {
-      res.json({
-        status: false,
-        message: 'Error updating book',
-        data: {}
-      });
-      return;
-    }
-    res.json({
-      status: true,
-      message: 'Book updated successfully',
-      data: {
-        id: bookId,
-        ISBN: ISBN,
-        title: title,
-        author: author,
-        year: year
+  connection.query(
+    "UPDATE books SET ISBN = ?, title = ?, author = ?, year = ? WHERE id = ?",
+    [ISBN, title, author, year, bookId],
+    (err, result) => {
+      if (err) {
+        res.json({
+          status: false,
+          message: "Error updating book",
+          data: {},
+        });
+        return;
       }
-    });
-  });
+      res.json({
+        status: true,
+        message: "Book updated successfully",
+        data: {
+          id: bookId,
+          ISBN: ISBN,
+          title: title,
+          author: author,
+          year: year,
+        },
+      });
+    }
+  );
 });
 
-
-
-  
 // Menampilkan form untuk menambahkan buku
-app.get('/add-book-form', (req, res) => {
+app.get("/add-book-form", (req, res) => {
   res.send(`
     <!DOCTYPE html>
     <html>
@@ -196,34 +202,42 @@ app.get('/add-book-form', (req, res) => {
 });
 
 // Menambahkan buku ke database
-app.post('/add-book', (req, res) => {
+app.post("/add-book", (req, res) => {
   const { ISBN, title, author, year } = req.body;
-  connection.query('INSERT INTO books (ISBN, title, author, year) VALUES (?, ?, ?, ?)', [ISBN, title, author, year], (err, result) => {
-    if (err) {
-      res.json({
-        status: false,
-        message: 'Error adding book',
-        data: {}
-      });
-      return;
-    }
-    res.json({
-      status: true,
-      message: 'Book added successfully',
-      data: {
-        id: result.insertId,
-        ISBN: ISBN,
-        title: title,
-        author: author,
-        year: year
+  connection.query(
+    "INSERT INTO books (ISBN, title, author, year) VALUES (?, ?, ?, ?)",
+    [ISBN, title, author, year],
+    (err, result) => {
+      if (err) {
+        res.json({
+          status: false,
+          message: "Error adding book",
+          data: {},
+        });
+        return;
       }
-    });
-  });
+      res.json({
+        status: true,
+        message: "Book added successfully",
+        data: {
+          id: result.insertId,
+          ISBN: ISBN,
+          title: title,
+          author: author,
+          year: year,
+        },
+      });
+    },
+  );
 });
 
+app.get('/', (req, res) => {
+  res.send('hello yobo');
+});
+
+// get all book categories
+app.get('/categories', getAllCategories);
 
 // Menjalankan server
 const PORT = process.env.PORT || 8000;
-app.listen(PORT, () => {
-  console.log(`Server is running on port ${PORT}`);
-});
+app.listen(PORT, () => console.log(`Server is running on port ${PORT}`));
