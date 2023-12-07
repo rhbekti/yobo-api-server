@@ -7,9 +7,9 @@ const getAllBooks = (req, res) => {
       year: '2002',
       publisher: 'Oxford University Press',
       image: {
-        s: '',
-        m: '',
-        l: '',
+        s: 'https://github.com/rhbekti/yobo-api-server/blob/main/images/0195153448.01.MZZZZZZZ.jpg',
+        m: 'https://github.com/rhbekti/yobo-api-server/blob/main/images/0195153448.01.MZZZZZZZ.jpg',
+        l: 'https://github.com/rhbekti/yobo-api-server/blob/main/images/0195153448.01.MZZZZZZZ.jpg',
       },
     },
     {
