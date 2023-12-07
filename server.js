@@ -240,7 +240,7 @@ app.get('/', (req, res) => {
 
 // get all book categories
 app.get('/categories', getAllCategories);
-app.get('/books', getAllBooks);
+app.get('/books_dev', getAllBooks);
 
 // Menjalankan server
 const HOST = process.env.NODE_ENV !== 'production' ? 'localhost' : '0.0.0.0';
